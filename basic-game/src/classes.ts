@@ -35,6 +35,10 @@ export class Player {
     this.playerHeight = playerHeight;
     this.playerSpeedX = playerSpeedX;
     this.playerSpeedY = playerSpeedY;
+
+    // Event Listeners
+    document.addEventListener('keydown', this.handleKeyDown);
+    document.addEventListener('keyup', this.handleKeyUp);
   }
 
   drawPlayer(canvas: CanvasView): void {
@@ -47,8 +51,41 @@ export class Player {
       this.playerHeight
     );
   }
+
+  jumpPlayer(): void {
+    this.playerSpeedY = -10;
+
+    this.playerPosition.y += this.playerSpeedY;
+  }
+
+  handleKeyUp = (e: KeyboardEvent): void => {
+    // if (e.code === 'ArrowLeft' || e.key === 'ArrowLeft') this.moveLeft = false;
+    // if (e.code === 'ArrowRight' || e.key === 'ArrowRight')
+    //   this.moveRight = false;
+
+    if (e.code === 'KeyW' || e.key === 'w') this.jumpPlayer();
+  };
+
+  handleKeyDown = (e: KeyboardEvent): void => {
+    // if (e.code === 'ArrowLeft' || e.key === 'ArrowLeft') this.moveLeft = true;
+    // if (e.code === 'ArrowRight' || e.key === 'ArrowRight')
+    //   this.moveRight = true;
+  };
 }
 
 export class Gravity {
-  gravityOnDrawings(canvas: CanvasView, playersArr: Player[]) {}
+  gravityOnDrawings(canvas: CanvasView, playersArr: Player[]): void {
+    let gravityAccel = 0.4;
+
+    playersArr.forEach((player) => {
+      if (player.playerPosition.y < canvas.height - player.playerHeight) {
+        player.playerSpeedY += gravityAccel;
+
+        player.playerPosition.y += player.playerSpeedY;
+      } else {
+        player.playerSpeedY = 0;
+        player.playerPosition.y = canvas.height - player.playerHeight;
+      }
+    });
+  }
 }
