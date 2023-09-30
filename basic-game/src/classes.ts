@@ -8,7 +8,7 @@ export class CanvasView {
     this.canvas = document.getElementById(canvasName) as HTMLCanvasElement;
     this.context = this.canvas.getContext('2d');
     this.width = 1024;
-    this.height = 768;
+    this.height = 500;
   }
 
   clear(): void {
@@ -36,10 +36,11 @@ export class Player {
     widthOfAttack: number;
     heightOfAttack: number;
   };
-  public leftAttack: {
+  public defending: boolean;
+  public defendBox: {
     position: { x: number; y: number };
-    widthOfAttack: number;
-    heightOfAttack: number;
+    widthOfDefend: number;
+    heightOfDefend: number;
   };
   constructor(
     public parentCanvas: CanvasView,
@@ -67,13 +68,14 @@ export class Player {
       widthOfAttack: 0,
       heightOfAttack: 0,
     };
-    this.leftAttack = {
+    this.defending = false;
+    this.defendBox = {
       position: {
         x: 0,
         y: 0,
       },
-      widthOfAttack: 0,
-      heightOfAttack: 0,
+      widthOfDefend: 0,
+      heightOfDefend: 0,
     };
     this.player = player;
 
@@ -114,6 +116,7 @@ export class Player {
 
     //When attacking
     if (this.watchingToTheRight && this.attacking) {
+      this.defending = false;
       this.parentCanvas.context!.fillStyle = 'lightblue';
 
       this.attackBox = {
@@ -135,6 +138,7 @@ export class Player {
         this.attacking = false;
       }, 500);
     } else if (!this.watchingToTheRight && this.attacking) {
+      this.defending = false;
       this.parentCanvas.context!.fillStyle = 'lightblue';
 
       this.attackBox = {
@@ -155,6 +159,45 @@ export class Player {
       setTimeout(() => {
         this.attacking = false;
       }, 500);
+    }
+
+    //When defending
+    if (this.watchingToTheRight && this.defending) {
+      this.parentCanvas.context!.fillStyle = 'lightgreen';
+
+      this.defendBox = {
+        position: {
+          x: this.playerPosition.x + this.playerWidth + 5,
+          y: this.playerPosition.y,
+        },
+        widthOfDefend: 5,
+        heightOfDefend: this.playerHeight - 20,
+      };
+
+      this.parentCanvas.context?.fillRect(
+        this.defendBox.position.x,
+        this.defendBox.position.y,
+        this.defendBox.widthOfDefend,
+        this.defendBox.heightOfDefend
+      );
+    } else if (!this.watchingToTheRight && this.defending) {
+      this.parentCanvas.context!.fillStyle = 'lightgreen';
+
+      this.defendBox = {
+        position: {
+          x: this.playerPosition.x - 10,
+          y: this.playerPosition.y,
+        },
+        widthOfDefend: 5,
+        heightOfDefend: this.playerHeight - 20,
+      };
+
+      this.parentCanvas.context?.fillRect(
+        this.defendBox.position.x,
+        this.defendBox.position.y,
+        this.defendBox.widthOfDefend,
+        this.defendBox.heightOfDefend
+      );
     }
   }
 
@@ -182,7 +225,6 @@ export class Player {
 
   handleKeyDown = (e: KeyboardEvent): void => {
     e.preventDefault();
-    if (e.repeat) return;
 
     console.log(e.key);
     //Player one keys:
@@ -203,9 +245,30 @@ export class Player {
     if ((e.key === ' ' || e.key === ' ') && this.player === 1) {
       this.attacking = true;
     }
+    if (e.key === 'Shift' && this.player === 1) {
+      this.defending = true;
+    }
 
     //Player two keys:
-    if (e.code === 'ArrowUp' && this.player === 2) {
+    if (e.key === 'ArrowUp' && this.player === 2) {
+      this.movingUp = true;
+    }
+    if (e.key === 'ArrowRight' && this.player === 2) {
+      this.movingRight = true;
+      this.watchingToTheRight = true;
+    }
+    if (e.key === 'ArrowDown' && this.player === 2) {
+      this.movingDown = true;
+    }
+    if (e.key === 'ArrowLeft' && this.player === 2) {
+      this.movingLeft = true;
+      this.watchingToTheRight = false;
+    }
+    if (e.key === '0' && this.player === 2) {
+      this.attacking = true;
+    }
+    if (e.key === '.' && this.player === 2) {
+      this.defending = true;
     }
   };
 
@@ -226,8 +289,27 @@ export class Player {
     if ((e.key === ' ' || e.key === ' ') && this.player === 1) {
       this.attacking = false;
     }
+    if (e.key === 'Shift' && this.player === 1) {
+      this.defending = false;
+    }
     //Player two keys:
-    if (e.code === 'ArrowUp' && this.player === 2) {
+    if (e.key === 'ArrowUp' && this.player === 2) {
+      this.movingUp = false;
+    }
+    if (e.key === 'ArrowRight' && this.player === 2) {
+      this.movingRight = false;
+    }
+    if (e.key === 'ArrowDown' && this.player === 2) {
+      this.movingDown = false;
+    }
+    if (e.key === 'ArrowLeft' && this.player === 2) {
+      this.movingLeft = false;
+    }
+    if (e.key === '0' && this.player === 2) {
+      this.attacking = false;
+    }
+    if (e.key === '.' && this.player === 2) {
+      this.defending = false;
     }
   };
 }
@@ -271,20 +353,20 @@ export class Collision {
     });
   }
 
-  collisionAttack(canvas: CanvasView, playersArr: Player[]) {
+  collisionAttack(canvas: CanvasView, playersArr: Player[]): void {
     if (playersArr[0].attacking) {
-      console.log(
-        playersArr[0].attackBox.position.x,
-        playersArr[0].attackBox.position.y,
-        playersArr[0].attackBox.widthOfAttack,
-        playersArr[0].attackBox.heightOfAttack
-      );
-      console.log(
-        playersArr[1].playerPosition.x,
-        playersArr[1].playerPosition.y,
-        playersArr[1].playerWidth,
-        playersArr[1].playerHeight
-      );
+      // console.log(
+      //   playersArr[0].attackBox.position.x,
+      //   playersArr[0].attackBox.position.y,
+      //   playersArr[0].attackBox.widthOfAttack,
+      //   playersArr[0].attackBox.heightOfAttack
+      // );
+      // console.log(
+      //   playersArr[1].playerPosition.x,
+      //   playersArr[1].playerPosition.y,
+      //   playersArr[1].playerWidth,
+      //   playersArr[1].playerHeight
+      // );
 
       const attackX = playersArr[0].attackBox.position.x;
       const attackY = playersArr[0].attackBox.position.y;
@@ -296,16 +378,26 @@ export class Collision {
       const enemyWidth = playersArr[1].playerWidth;
       const enemyHeight = playersArr[1].playerHeight;
 
-      console.log(attackY + attackHeight);
-      console.log(enemyY + enemyHeight);
+      // console.log(attackY + attackHeight);
+      // console.log(enemyY + enemyHeight);
 
-      const logicCollisionOnX =
+      const logicCollisionOnX: boolean =
         attackX <= enemyX && attackX + attackWidth >= enemyX + enemyWidth;
 
-      const logicCollisionOnY =
+      const logicCollisionOnY: boolean =
         attackY >= enemyY && attackY + attackHeight <= enemyY + enemyHeight;
 
-      if (logicCollisionOnX && logicCollisionOnY) {
+      const logicCollisionDefend: boolean =
+        (!playersArr[0].watchingToTheRight &&
+          playersArr[1].watchingToTheRight &&
+          playersArr[1].defending) ||
+        (playersArr[0].watchingToTheRight &&
+          !playersArr[1].watchingToTheRight &&
+          playersArr[1].defending);
+
+      if (logicCollisionOnX && logicCollisionOnY && logicCollisionDefend) {
+        console.log('Defended');
+      } else if (logicCollisionOnX && logicCollisionOnY) {
         console.log('connected');
       }
     }
