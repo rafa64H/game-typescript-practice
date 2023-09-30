@@ -242,10 +242,10 @@ export class Player {
       this.movingLeft = true;
       this.watchingToTheRight = false;
     }
-    if ((e.key === ' ' || e.key === ' ') && this.player === 1) {
+    if ((e.key === 'G' || e.key === 'g') && this.player === 1) {
       this.attacking = true;
     }
-    if (e.key === 'Shift' && this.player === 1) {
+    if (e.key === 'H' || (e.key === 'h' && this.player === 1)) {
       this.defending = true;
     }
 
@@ -273,6 +273,8 @@ export class Player {
   };
 
   handleKeyUp = (e: KeyboardEvent): void => {
+    e.preventDefault();
+
     //Player one keys:
     if ((e.key === 'W' || e.key === 'w') && this.player === 1) {
       this.movingUp = false;
@@ -286,10 +288,10 @@ export class Player {
     if ((e.key === 'A' || e.key === 'a') && this.player === 1) {
       this.movingLeft = false;
     }
-    if ((e.key === ' ' || e.key === ' ') && this.player === 1) {
+    if ((e.key === 'G' || e.key === 'g') && this.player === 1) {
       this.attacking = false;
     }
-    if (e.key === 'Shift' && this.player === 1) {
+    if (e.key === 'H' || (e.key === 'h' && this.player === 1)) {
       this.defending = false;
     }
     //Player two keys:
@@ -354,52 +356,41 @@ export class Collision {
   }
 
   collisionAttack(canvas: CanvasView, playersArr: Player[]): void {
-    if (playersArr[0].attacking) {
-      // console.log(
-      //   playersArr[0].attackBox.position.x,
-      //   playersArr[0].attackBox.position.y,
-      //   playersArr[0].attackBox.widthOfAttack,
-      //   playersArr[0].attackBox.heightOfAttack
-      // );
-      // console.log(
-      //   playersArr[1].playerPosition.x,
-      //   playersArr[1].playerPosition.y,
-      //   playersArr[1].playerWidth,
-      //   playersArr[1].playerHeight
-      // );
+    playersArr.forEach((attackerPlayer, index) => {
+      if (attackerPlayer.attacking) {
+        playersArr.forEach((enemyPlayer, enemyIndex) => {
+          if (index === enemyIndex) return;
+          const attackX = attackerPlayer.attackBox.position.x;
+          const attackY = attackerPlayer.attackBox.position.y;
+          const attackWidth = attackerPlayer.attackBox.widthOfAttack;
+          const attackHeight = attackerPlayer.attackBox.heightOfAttack;
 
-      const attackX = playersArr[0].attackBox.position.x;
-      const attackY = playersArr[0].attackBox.position.y;
-      const attackWidth = playersArr[0].attackBox.widthOfAttack;
-      const attackHeight = playersArr[0].attackBox.heightOfAttack;
+          const enemyX = enemyPlayer.playerPosition.x;
+          const enemyY = enemyPlayer.playerPosition.y;
+          const enemyWidth = enemyPlayer.playerWidth;
+          const enemyHeight = enemyPlayer.playerHeight;
 
-      const enemyX = playersArr[1].playerPosition.x;
-      const enemyY = playersArr[1].playerPosition.y;
-      const enemyWidth = playersArr[1].playerWidth;
-      const enemyHeight = playersArr[1].playerHeight;
+          const logicCollisionOnX: boolean =
+            attackX <= enemyX && attackX + attackWidth >= enemyX + enemyWidth;
 
-      // console.log(attackY + attackHeight);
-      // console.log(enemyY + enemyHeight);
+          const logicCollisionOnY: boolean =
+            attackY >= enemyY && attackY + attackHeight <= enemyY + enemyHeight;
 
-      const logicCollisionOnX: boolean =
-        attackX <= enemyX && attackX + attackWidth >= enemyX + enemyWidth;
+          const logicCollisionDefend: boolean =
+            (!attackerPlayer.watchingToTheRight &&
+              enemyPlayer.watchingToTheRight &&
+              enemyPlayer.defending) ||
+            (attackerPlayer.watchingToTheRight &&
+              !enemyPlayer.watchingToTheRight &&
+              enemyPlayer.defending);
 
-      const logicCollisionOnY: boolean =
-        attackY >= enemyY && attackY + attackHeight <= enemyY + enemyHeight;
-
-      const logicCollisionDefend: boolean =
-        (!playersArr[0].watchingToTheRight &&
-          playersArr[1].watchingToTheRight &&
-          playersArr[1].defending) ||
-        (playersArr[0].watchingToTheRight &&
-          !playersArr[1].watchingToTheRight &&
-          playersArr[1].defending);
-
-      if (logicCollisionOnX && logicCollisionOnY && logicCollisionDefend) {
-        console.log('Defended');
-      } else if (logicCollisionOnX && logicCollisionOnY) {
-        console.log('connected');
+          if (logicCollisionOnX && logicCollisionOnY && logicCollisionDefend) {
+            console.log('Defended');
+          } else if (logicCollisionOnX && logicCollisionOnY) {
+            console.log('connected');
+          }
+        });
       }
-    }
+    });
   }
 }
