@@ -23,6 +23,7 @@ export class CanvasView {
 }
 
 export class Player {
+  public health: number;
   public playerSpeedX: number;
   public playerSpeedY: number;
   public movingUp: boolean;
@@ -42,6 +43,8 @@ export class Player {
     widthOfDefend: number;
     heightOfDefend: number;
   };
+  public recentlyReceivedHit: boolean;
+
   constructor(
     public parentCanvas: CanvasView,
     public playerPosition: { x: number; y: number },
@@ -49,6 +52,7 @@ export class Player {
     public playerHeight: number,
     public player: number
   ) {
+    this.health = 100;
     this.playerPosition = playerPosition;
     this.playerWidth = playerWidth;
     this.playerHeight = playerHeight;
@@ -77,6 +81,7 @@ export class Player {
       widthOfDefend: 0,
       heightOfDefend: 0,
     };
+    this.recentlyReceivedHit = false;
     this.player = player;
 
     // Event Listeners
@@ -95,7 +100,11 @@ export class Player {
     );
 
     if (this.watchingToTheRight) {
-      this.parentCanvas.context!.fillStyle = 'white';
+      if (this.recentlyReceivedHit) {
+        this.parentCanvas.context!.fillStyle = 'green';
+      } else {
+        this.parentCanvas.context!.fillStyle = 'white';
+      }
 
       this.parentCanvas.context?.fillRect(
         this.playerPosition.x + 12,
@@ -223,95 +232,106 @@ export class Player {
     // }
   }
 
+  playerDie() {
+    const sustituteWidthHeight = this.playerWidth;
+    this.playerPosition.y = this.parentCanvas.height - this.playerWidth;
+    this.playerWidth = this.playerHeight;
+    this.playerHeight = sustituteWidthHeight;
+  }
+
   handleKeyDown = (e: KeyboardEvent): void => {
     e.preventDefault();
 
     console.log(e.key);
-    //Player one keys:
-    if ((e.key === 'W' || e.key === 'w') && this.player === 1) {
-      this.movingUp = true;
-    }
-    if ((e.key === 'D' || e.key === 'd') && this.player === 1) {
-      this.movingRight = true;
-      this.watchingToTheRight = true;
-    }
-    if ((e.key === 'S' || e.key === 's') && this.player === 1) {
-      this.movingDown = true;
-    }
-    if ((e.key === 'A' || e.key === 'a') && this.player === 1) {
-      this.movingLeft = true;
-      this.watchingToTheRight = false;
-    }
-    if ((e.key === 'G' || e.key === 'g') && this.player === 1) {
-      this.attacking = true;
-    }
-    if (e.key === 'H' || (e.key === 'h' && this.player === 1)) {
-      this.defending = true;
-    }
+    if (this.health > 0) {
+      //Player one keys:
+      if ((e.key === 'W' || e.key === 'w') && this.player === 1) {
+        this.movingUp = true;
+      }
+      if ((e.key === 'D' || e.key === 'd') && this.player === 1) {
+        this.movingRight = true;
+        this.watchingToTheRight = true;
+      }
+      if ((e.key === 'S' || e.key === 's') && this.player === 1) {
+        this.movingDown = true;
+      }
+      if ((e.key === 'A' || e.key === 'a') && this.player === 1) {
+        this.movingLeft = true;
+        this.watchingToTheRight = false;
+      }
+      if ((e.key === 'G' || e.key === 'g') && this.player === 1) {
+        this.attacking = true;
+      }
+      if (e.key === 'H' || (e.key === 'h' && this.player === 1)) {
+        this.defending = true;
+      }
 
-    //Player two keys:
-    if (e.key === 'ArrowUp' && this.player === 2) {
-      this.movingUp = true;
-    }
-    if (e.key === 'ArrowRight' && this.player === 2) {
-      this.movingRight = true;
-      this.watchingToTheRight = true;
-    }
-    if (e.key === 'ArrowDown' && this.player === 2) {
-      this.movingDown = true;
-    }
-    if (e.key === 'ArrowLeft' && this.player === 2) {
-      this.movingLeft = true;
-      this.watchingToTheRight = false;
-    }
-    if (e.key === '0' && this.player === 2) {
-      this.attacking = true;
-    }
-    if (e.key === '.' && this.player === 2) {
-      this.defending = true;
+      //Player two keys:
+      if (e.key === 'ArrowUp' && this.player === 2) {
+        this.movingUp = true;
+      }
+      if (e.key === 'ArrowRight' && this.player === 2) {
+        this.movingRight = true;
+        this.watchingToTheRight = true;
+      }
+      if (e.key === 'ArrowDown' && this.player === 2) {
+        this.movingDown = true;
+      }
+      if (e.key === 'ArrowLeft' && this.player === 2) {
+        this.movingLeft = true;
+        this.watchingToTheRight = false;
+      }
+      if (e.key === '0' && this.player === 2) {
+        this.attacking = true;
+      }
+      if (e.key === '.' && this.player === 2) {
+        this.defending = true;
+      }
     }
   };
 
   handleKeyUp = (e: KeyboardEvent): void => {
     e.preventDefault();
 
-    //Player one keys:
-    if ((e.key === 'W' || e.key === 'w') && this.player === 1) {
-      this.movingUp = false;
-    }
-    if ((e.key === 'D' || e.key === 'd') && this.player === 1) {
-      this.movingRight = false;
-    }
-    if ((e.key === 'S' || e.key === 's') && this.player === 1) {
-      this.movingDown = false;
-    }
-    if ((e.key === 'A' || e.key === 'a') && this.player === 1) {
-      this.movingLeft = false;
-    }
-    if ((e.key === 'G' || e.key === 'g') && this.player === 1) {
-      this.attacking = false;
-    }
-    if (e.key === 'H' || (e.key === 'h' && this.player === 1)) {
-      this.defending = false;
-    }
-    //Player two keys:
-    if (e.key === 'ArrowUp' && this.player === 2) {
-      this.movingUp = false;
-    }
-    if (e.key === 'ArrowRight' && this.player === 2) {
-      this.movingRight = false;
-    }
-    if (e.key === 'ArrowDown' && this.player === 2) {
-      this.movingDown = false;
-    }
-    if (e.key === 'ArrowLeft' && this.player === 2) {
-      this.movingLeft = false;
-    }
-    if (e.key === '0' && this.player === 2) {
-      this.attacking = false;
-    }
-    if (e.key === '.' && this.player === 2) {
-      this.defending = false;
+    if (this.health > 0) {
+      //Player one keys:
+      if ((e.key === 'W' || e.key === 'w') && this.player === 1) {
+        this.movingUp = false;
+      }
+      if ((e.key === 'D' || e.key === 'd') && this.player === 1) {
+        this.movingRight = false;
+      }
+      if ((e.key === 'S' || e.key === 's') && this.player === 1) {
+        this.movingDown = false;
+      }
+      if ((e.key === 'A' || e.key === 'a') && this.player === 1) {
+        this.movingLeft = false;
+      }
+      if ((e.key === 'G' || e.key === 'g') && this.player === 1) {
+        this.attacking = false;
+      }
+      if (e.key === 'H' || (e.key === 'h' && this.player === 1)) {
+        this.defending = false;
+      }
+      //Player two keys:
+      if (e.key === 'ArrowUp' && this.player === 2) {
+        this.movingUp = false;
+      }
+      if (e.key === 'ArrowRight' && this.player === 2) {
+        this.movingRight = false;
+      }
+      if (e.key === 'ArrowDown' && this.player === 2) {
+        this.movingDown = false;
+      }
+      if (e.key === 'ArrowLeft' && this.player === 2) {
+        this.movingLeft = false;
+      }
+      if (e.key === '0' && this.player === 2) {
+        this.attacking = false;
+      }
+      if (e.key === '.' && this.player === 2) {
+        this.defending = false;
+      }
     }
   };
 }
@@ -388,6 +408,18 @@ export class Collision {
             console.log('Defended');
           } else if (logicCollisionOnX && logicCollisionOnY) {
             console.log('connected');
+
+            if (enemyPlayer.recentlyReceivedHit) return;
+            enemyPlayer.recentlyReceivedHit = true;
+            enemyPlayer.health -= 5;
+            console.log(enemyPlayer.health);
+            if (enemyPlayer.health <= 0) {
+              enemyPlayer.playerDie();
+              return;
+            }
+            setTimeout(() => {
+              enemyPlayer.recentlyReceivedHit = false;
+            }, 500);
           }
         });
       }
