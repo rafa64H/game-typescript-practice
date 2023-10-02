@@ -71,7 +71,7 @@ export class Player {
     this.playerPosition = playerPosition;
     this.playerWidth = playerWidth;
     this.playerHeight = playerHeight;
-    this.playerSpeedX = 10;
+    this.playerSpeedX = 7;
     this.playerSpeedY = 0;
     this.movingUp = false;
     this.movingRight = false;
@@ -128,7 +128,11 @@ export class Player {
         5
       );
     } else {
-      this.parentCanvas.context!.fillStyle = 'white';
+      if (this.recentlyReceivedHit) {
+        this.parentCanvas.context!.fillStyle = 'green';
+      } else {
+        this.parentCanvas.context!.fillStyle = 'white';
+      }
 
       this.parentCanvas.context?.fillRect(
         this.playerPosition.x,
@@ -227,7 +231,7 @@ export class Player {
 
   movePlayer(): void {
     if (this.movingUp) {
-      this.playerSpeedY = -10;
+      this.playerSpeedY = -7;
       this.playerPosition.y += this.playerSpeedY;
     }
     if (this.movingRight) {
