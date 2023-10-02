@@ -4,8 +4,8 @@ const canvas = new CanvasView('game-view', ['data-health-1', 'data-health-2']);
 
 canvas.create();
 
-const playerOne = new Player(canvas, { x: 0, y: 0 }, 25, 100, 1);
-const playerTwo = new Player(canvas, { x: 500, y: 0 }, 25, 100, 2);
+const playerOne = new Player(canvas, { x: 0, y: 0 }, 25, 100, 'red', 1);
+const playerTwo = new Player(canvas, { x: 500, y: 0 }, 25, 100, 'purple', 2);
 
 const gravityInstance = new Gravity();
 

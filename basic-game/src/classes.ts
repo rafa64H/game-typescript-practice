@@ -65,6 +65,7 @@ export class Player {
     public playerPosition: { x: number; y: number },
     public playerWidth: number,
     public playerHeight: number,
+    public playerColor: string,
     public player: number
   ) {
     this.health = 100;
@@ -73,6 +74,7 @@ export class Player {
     this.playerHeight = playerHeight;
     this.playerSpeedX = 7;
     this.playerSpeedY = 0;
+    this.playerColor = playerColor;
     this.movingUp = false;
     this.movingRight = false;
     this.movingDown = false;
@@ -105,7 +107,7 @@ export class Player {
   }
 
   drawPlayer(): void {
-    this.parentCanvas.context!.fillStyle = 'red';
+    this.parentCanvas.context!.fillStyle = this.playerColor;
 
     this.parentCanvas.context?.fillRect(
       this.playerPosition.x,
