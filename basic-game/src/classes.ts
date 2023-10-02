@@ -257,7 +257,6 @@ export class Player {
   handleKeyDown = (e: KeyboardEvent): void => {
     e.preventDefault();
 
-    console.log(e.key);
     if (this.health > 0) {
       //Player one keys:
       if ((e.key === 'W' || e.key === 'w') && this.player === 1) {
@@ -422,10 +421,7 @@ export class Collision {
               enemyPlayer.defending);
 
           if (logicCollisionOnX && logicCollisionOnY && logicCollisionDefend) {
-            console.log('Defended');
           } else if (logicCollisionOnX && logicCollisionOnY) {
-            console.log('connected');
-
             if (enemyPlayer.recentlyReceivedHit) return;
             enemyPlayer.recentlyReceivedHit = true;
             enemyPlayer.health -= 5;
@@ -433,8 +429,6 @@ export class Collision {
               enemyPlayer.player,
               enemyPlayer.health
             );
-
-            console.log(enemyPlayer.health);
 
             if (enemyPlayer.health <= 0) {
               enemyPlayer.playerDie();
