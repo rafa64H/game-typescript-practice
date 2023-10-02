@@ -3,12 +3,19 @@ export class CanvasView {
   public context: CanvasRenderingContext2D | null;
   public width: number;
   public height: number;
+  public healthBars: (HTMLDivElement | null)[];
 
-  constructor(canvasName: string) {
+  constructor(canvasName: string, healthBarsDataAttributes: string[]) {
     this.canvas = document.getElementById(canvasName) as HTMLCanvasElement;
     this.context = this.canvas.getContext('2d');
     this.width = 1024;
     this.height = 500;
+    this.healthBars = healthBarsDataAttributes.map((dataAttribute) => {
+      const healthBarElement: HTMLDivElement | null = document.querySelector(
+        `[${dataAttribute}]`
+      );
+      return healthBarElement;
+    });
   }
 
   clear(): void {
@@ -19,6 +26,14 @@ export class CanvasView {
     this.canvas.width = this.width;
     this.canvas.height = this.height;
     this.context?.fillRect(0, 0, this.canvas.width, this.canvas.height);
+  }
+
+  reduceHealthOfSomePlayer(player: number, playerHealth: number): void {
+    const indexOfPlayer = player - 1;
+
+    const healthBarOfPlayer = this.healthBars[indexOfPlayer];
+
+    healthBarOfPlayer!.style.width = `${playerHealth}%`;
   }
 }
 
@@ -224,12 +239,6 @@ export class Player {
     if (this.movingLeft) {
       this.playerPosition.x += -this.playerSpeedX;
     }
-
-    // if (this.movingUp && this.movingRight) {
-    //   this.playerSpeedY = -10;
-    //   this.playerPosition.y += this.playerSpeedY;
-    //   this.playerPosition.x += this.playerSpeedX;
-    // }
   }
 
   playerDie() {
@@ -412,7 +421,13 @@ export class Collision {
             if (enemyPlayer.recentlyReceivedHit) return;
             enemyPlayer.recentlyReceivedHit = true;
             enemyPlayer.health -= 5;
+            canvas.reduceHealthOfSomePlayer(
+              enemyPlayer.player,
+              enemyPlayer.health
+            );
+
             console.log(enemyPlayer.health);
+
             if (enemyPlayer.health <= 0) {
               enemyPlayer.playerDie();
               return;

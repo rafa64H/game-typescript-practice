@@ -1,6 +1,6 @@
 import { CanvasView, Collision, Gravity, Player } from './classes';
 
-const canvas = new CanvasView('game-view');
+const canvas = new CanvasView('game-view', ['data-health-1', 'data-health-2']);
 
 canvas.create();
 

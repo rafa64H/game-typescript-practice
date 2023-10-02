@@ -6,3 +6,29 @@
   max-width: 100%;
   box-sizing: border-box;
 }
+
+.health-bars {
+  display: flex;
+  align-items: center;
+
+  border: 3px solid gold;
+  width: 100%;
+  .separate-health-bars {
+    padding: 1em;
+    background-color: blue;
+  }
+  .health-bar-container {
+    width: 100%;
+    background-color: red;
+
+    .health-bar {
+      width: 100%;
+      padding: 1em 0;
+      background-color: green;
+      transition: all 500ms;
+    }
+    .health-bar--1 {
+      margin-left: auto;
+    }
+  }
+}
