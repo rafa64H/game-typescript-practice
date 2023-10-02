@@ -400,10 +400,12 @@ export class Collision {
           const enemyHeight = enemyPlayer.playerHeight;
 
           const logicCollisionOnX: boolean =
-            attackX <= enemyX && attackX + attackWidth >= enemyX + enemyWidth;
+            (attackX <= enemyX || attackX <= enemyX + enemyWidth) &&
+            attackX + attackWidth >= enemyX;
 
           const logicCollisionOnY: boolean =
-            attackY >= enemyY && attackY + attackHeight <= enemyY + enemyHeight;
+            (attackY <= enemyY || attackY <= enemyY + enemyHeight) &&
+            attackY + attackHeight >= enemyY;
 
           const logicCollisionDefend: boolean =
             (!attackerPlayer.watchingToTheRight &&
